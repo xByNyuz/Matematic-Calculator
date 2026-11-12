@@ -1,0 +1,35 @@
+name: Build Java EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Java (JDK 21)
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Compilar el código Java
+      run: javac *.java
+
+    - name: Crear archivo JAR
+      run: jar cfe MatematicCalculator.jar Main *.class
+
+    - name: Generar el instalador .exe
+      run: jpackage --input . --name MatematicCalculator --main-jar MatematicCalculator.jar --main-class Main --type exe --win-dir-chooser --win-menu
+
+    - name: Subir el .exe para descargarlo
+      uses: actions/upload-artifact@v4
+      with:
+        name: MatematicCalculator-Instalador
+        path: "*.exe"
